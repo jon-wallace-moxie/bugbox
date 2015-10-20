@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>BugBox Demo</title>
+    <meta name="description" content="A demo">
+    <meta name="author" content="Jon Wallace">
+    
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+</head>
+<body>
+    A demo website
+    <a href=""></a>
+    <script type="text/javascript">
+        'use strict'
+        
+        var BugBox = function(element, props){
+            var bugbox = {
+                element: null,
+                
+                contructor: function(element, props){
+                    this.element = element;
+                    
+                    this.createBBButton();
+                    
+                    return this;
+                },
+                
+                createBBButton: function(){
+                    $(element).append('<a href="#" id="bb-button"></a>')
+                        .find('#bb-button')
+                        .click(this.onBBButtonClick);
+                },
+                
+                onBBButtonClick: function(e){
+                    e.preventDefault();
+                    
+                    //create pubnub link
+                    
+                    
+                    //launch the bugbox
+                    window.open('http://google.com');
+                    
+                    //listen to elements
+                    
+                    //launch modules
+                    
+                    
+                    
+                    
+                    return false;
+                },
+                
+                
+                getElement: function(){
+                    return this.element;
+                }
+            };
+            
+            return bugbox.contructor(element, props);
+        };
+        
+        var bugbox = BugBox('body',{
+            property: 0
+        });
+    
+    
+    </script>
+</body>
+</html>

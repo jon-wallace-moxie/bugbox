@@ -1,0 +1,28 @@
+{
+  "name": "BugBox",
+  "version": "0.0.1",
+  "description": "A web-development debugging tool",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "gulp": "^3.9.0",
+    "pubnub": "^3.7.15"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "jquery": "^2.1.4",
+    "pubnub": "^3.7.15"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jon-wallace-moxie/bugbox.git"
+  },
+  "author": "Jon Wallace :: Moxie Interactive",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jon-wallace-moxie/bugbox/issues"
+  },
+  "homepage": "https://github.com/jon-wallace-moxie/bugbox"
+}

@@ -10,16 +10,66 @@
     <link rel="stylesheet" href="css/styles.css">
     
     <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script src="https://cdn.pubnub.com/pubnub-dev.js"></script>
 </head>
 <body>
-    A demo website
-    <a href=""></a>
-    <script type="text/javascript">
-        'use strict'
+    BugBox
+    <ul class="styles">
         
-         
+    </ul>
     
-    
+    <!-- Instantiate PubNub -->
+    <script type="text/javascript">
+        var PUBNUB_demo = PUBNUB.init({
+            publish_key: 'pub-c-31e8f452-4051-43f9-82c1-25f4c137f164',
+            subscribe_key: 'sub-c-59e8f2ec-ca33-11e3-90c5-02ee2ddab7fe'
+        });
+        
+        // Subscribe to the demo_tutorial channel
+        PUBNUB_demo.subscribe({
+            channel: 'demo_tutorial',
+            message: function(m){
+                console.log(m.command);
+                
+                if(m.command == 'Site_EditElement')
+                {
+                    var stylesList = '<table>';
+
+                
+                    for (var key in m.styles) {
+                        stylesList += '<tr><td>'+key+':</td><td><input type="text" bb-style-name="'+key+'" value="'+m.styles[key]+'" /></td></tr>';
+                    }
+
+                    $('.styles').html(stylesList+'</table>');
+
+                    $('input').on('change', function(e){
+                        var $target = $(e.currentTarget);
+                        //console.log(.val());
+                        changeStyle($target.attr('bb-style-name'), $target.val());
+                    });
+                }
+                
+                
+            }
+        });
+        
+        
+        function changeStyle(style, value){
+            PUBNUB_demo.publish({
+                channel: 'demo_tutorial',
+                message: {
+                    command: 'Box_UpdateStyle',
+                    bb_id: 'bb-element-10',
+                    style: style,
+                    value: value
+                }
+            });
+        }
+        
+        
+        
+        
+        
     </script>
 </body>
 </html>

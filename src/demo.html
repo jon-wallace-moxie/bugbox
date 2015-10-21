@@ -9,65 +9,98 @@
     
     <link rel="stylesheet" href="css/styles.css">
     
+    <script src="https://cdn.pubnub.com/pubnub-dev.js"></script>
     <script type="text/javascript" src="js/jquery.min.js"></script>
 </head>
 <body>
     A demo website
-    <a href=""></a>
+    <a id="bb-button" href=""></a>
+    
+    <ul class="numbers">
+        
+    </ul>
+    
+    <!-- Instantiate PubNub -->
     <script type="text/javascript">
-        'use strict'
-        
-        var BugBox = function(element, props){
-            var bugbox = {
-                element: null,
-                
-                contructor: function(element, props){
-                    this.element = element;
-                    
-                    this.createBBButton();
-                    
-                    return this;
-                },
-                
-                createBBButton: function(){
-                    $(element).append('<a href="#" id="bb-button"></a>')
-                        .find('#bb-button')
-                        .click(this.onBBButtonClick);
-                },
-                
-                onBBButtonClick: function(e){
-                    e.preventDefault();
-                    
-                    //create pubnub link
-                    
-                    
-                    //launch the bugbox
-                    window.open('http://google.com');
-                    
-                    //listen to elements
-                    
-                    //launch modules
-                    
-                    
-                    
-                    
-                    return false;
-                },
-                
-                
-                getElement: function(){
-                    return this.element;
-                }
-            };
-            
-            return bugbox.contructor(element, props);
-        };
-        
-        var bugbox = BugBox('body',{
-            property: 0
+        var PUBNUB_demo = PUBNUB.init({
+            publish_key: 'pub-c-31e8f452-4051-43f9-82c1-25f4c137f164',
+            subscribe_key: 'sub-c-59e8f2ec-ca33-11e3-90c5-02ee2ddab7fe'
         });
-    
-    
+        
+        // Subscribe to the demo_tutorial channel
+        PUBNUB_demo.subscribe({
+            channel: 'demo_tutorial',
+            message: function(m){
+                console.log(m.command);
+                if(m.command == 'Box_UpdateStyle'){
+                    $('[bb-elementid="'+m.bb_id+'"]').get(0).style[m.style] = m.value;
+                    console.log(m.value);
+                }
+            
+            }
+        });
+        
+        var totalChunks = 0;
+        var channel = 'demo_tutorial';
+        function sendData(msg){
+            if(calculate_payload_size(channel, msg) <= 30000){
+                totalChunks++;
+                PUBNUB_demo.publish({
+                    channel: channel,
+                    message: msg
+                });
+            }
+            else{
+                var halfLength = msg.length/2;
+                sendData(msg.slice(0, halfLength));
+                sendData(msg.slice(halfLength));
+            }
+        }
+        
+        // Calculating a PubNub Message Payload Size.
+        function calculate_payload_size( channel, message ) {
+            return encodeURIComponent(
+                channel + JSON.stringify(message)
+            ).length + 100;
+        }
+        
+        var defaultStyles = getComputedStyle($('html').get(0));
+        var buttonStyles = getComputedStyle($('#bb-button').get(0));
+        var diffStyles = {};
+        
+
+        for (var key in defaultStyles) {
+            if (defaultStyles.hasOwnProperty(key)) {
+                if(isNaN(key)){ //if its not a number
+                    if(defaultStyles[key] != buttonStyles[key])
+                        diffStyles[key] = buttonStyles[key];
+                }
+                //console.log(key + " -> " + defaultStyles[key]);
+            }
+        }
+        
+        //add bb-elementid's to all elemnts on the page
+        $('*').each(function(i, el){
+            $(el).attr('bb-elementid', 'bb-element-'+i);
+        });
+        
+        $(document).ready(function(){
+            PUBNUB_demo.publish({
+                channel: channel,
+                message: {
+                    command: 'Site_EditElement',
+                    bb_id: 'bb-element-10',
+                    styles: diffStyles
+                }
+            });
+        });
+        
+//        //create a list of numers
+//        var numbersString = '';
+//        for(var i=0; i<10000; i++){
+//            numbersString += '<li>'+i+'</li>';
+//        }
+//        //$('.numbers').html(numbersString);
     </script>
 </body>
 </html>

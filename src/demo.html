@@ -13,8 +13,10 @@
     <script type="text/javascript" src="js/jquery.min.js"></script>
 </head>
 <body>
-    A demo website
-    <a id="bb-button" href=""></a>
+    <h1>A demo website</h1>
+    <a id="bb-button" href="" class="bb-component"></a>
+    
+    <p>A paragraph to test stuff :)</p>
     
     <ul class="numbers">
         
@@ -31,7 +33,7 @@
         PUBNUB_demo.subscribe({
             channel: 'demo_tutorial',
             message: function(m){
-                console.log(m.command);
+                console.log(m);
                 if(m.command == 'Box_UpdateStyle'){
                     $('[bb-elementid="'+m.bb_id+'"]').get(0).style[m.style] = m.value;
                     console.log(m.value);
@@ -39,6 +41,9 @@
             
             }
         });
+        
+        //add highlight
+        var $bbHighlight = $('body').append('<span id="bb-highlight" class="bb-component"></span>').find('#bb-highlight');
         
         var totalChunks = 0;
         var channel = 'demo_tutorial';
@@ -64,43 +69,55 @@
             ).length + 100;
         }
         
-        var defaultStyles = getComputedStyle($('html').get(0));
-        var buttonStyles = getComputedStyle($('#bb-button').get(0));
-        var diffStyles = {};
         
-
-        for (var key in defaultStyles) {
-            if (defaultStyles.hasOwnProperty(key)) {
-                if(isNaN(key)){ //if its not a number
-                    if(defaultStyles[key] != buttonStyles[key])
-                        diffStyles[key] = buttonStyles[key];
-                }
-                //console.log(key + " -> " + defaultStyles[key]);
-            }
-        }
         
         //add bb-elementid's to all elemnts on the page
-        $('*').each(function(i, el){
+        var currHoverID = null;
+        $('body *').not('.bb-component').each(function(i, el){
             $(el).attr('bb-elementid', 'bb-element-'+i);
-        });
-        
-        $(document).ready(function(){
+        }).on('click', function(e){
+            e.preventDefault;
+            
+            $this = $(e.currentTarget);
+            
+            var defaultStyles = getComputedStyle($('html').get(0));
+            var elementStyles = getComputedStyle($this.get(0));
+            var diffStyles = {};
+
+            for (var key in defaultStyles) {
+                if (defaultStyles.hasOwnProperty(key)) {
+                    if(isNaN(key)){ //if its not a number
+                        if(defaultStyles[key] != elementStyles[key])
+                            diffStyles[key] = elementStyles[key];
+                    }
+                }
+            }
+                
             PUBNUB_demo.publish({
                 channel: channel,
                 message: {
                     command: 'Site_EditElement',
-                    bb_id: 'bb-element-10',
+                    bb_id: $this.attr('bb-elementid'),
                     styles: diffStyles
                 }
             });
+            return false;
+        }).on('mouseover', function(e){
+            $this = $(e.currentTarget);
+
+            if(currHoverID == $this.attr('bb-elementid')) return;
+            currHoverID = $this.attr('bb-elementid');
+            
+            $bbHighlight.css({
+                top: $this.offset().top,
+                left: $this.offset().left,
+                width: $this.innerWidth(),
+                height: $this.innerHeight(),
+                display: 'block',
+                opacity: 0.5
+            }).fadeOut(100);
         });
         
-//        //create a list of numers
-//        var numbersString = '';
-//        for(var i=0; i<10000; i++){
-//            numbersString += '<li>'+i+'</li>';
-//        }
-//        //$('.numbers').html(numbersString);
     </script>
 </body>
 </html>

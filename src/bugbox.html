@@ -13,7 +13,8 @@
     <script src="https://cdn.pubnub.com/pubnub-dev.js"></script>
 </head>
 <body>
-    BugBox
+    <h1>BugBox</h1>
+    <div class="style-change-stack"><span class="title">Style Change Stack</span><textarea readonly></textarea></div>
     <ul class="styles">
         
     </ul>
@@ -25,49 +26,68 @@
             subscribe_key: 'sub-c-59e8f2ec-ca33-11e3-90c5-02ee2ddab7fe'
         });
         
+        var currentElementID = '';
+        var addRowMarkup = '<tr class="style-rule"><td class="style-name"><input type="text" value="[add new]" /></td><td class="style-value"><input type="text" /></td><td><button class="bb-btn-addstyle">+</button></td></tr>';
+        
         // Subscribe to the demo_tutorial channel
         PUBNUB_demo.subscribe({
             channel: 'demo_tutorial',
             message: function(m){
-                console.log(m.command);
+                console.log(m);
+                
+                currentElementID = m.bb_id;
                 
                 if(m.command == 'Site_EditElement')
                 {
                     var stylesList = '<table>';
-
                 
                     for (var key in m.styles) {
-                        stylesList += '<tr><td>'+key+':</td><td><input type="text" bb-style-name="'+key+'" value="'+m.styles[key]+'" /></td></tr>';
+                        stylesList += '<tr class="style-rule"><td class="style-name"><input type="text" value="'+key+'" readonly />:</td><td class="style-value"><input type="text" value="'+m.styles[key]+'" /></td></tr>';
                     }
-
-                    $('.styles').html(stylesList+'</table>');
-
-                    $('input').on('change', function(e){
-                        var $target = $(e.currentTarget);
-                        //console.log(.val());
-                        changeStyle($target.attr('bb-style-name'), $target.val());
-                    });
+                    
+                    $('.styles').html(stylesList+addRowMarkup+'</table>')
+                        .find('.bb-btn-addstyle');
+                    
+                    $('.style-value input').on('change', onStyleChange);
                 }
                 
                 
             }
         });
         
+        function onStyleChange(e){
+            var $target = $(e.currentTarget);
+            var $rule = $target.closest('.style-rule');
+
+            changeStyle($rule.find('.style-name input').attr('readonly', true).val(), $target.val());
+            if($rule.find('.bb-btn-addstyle').remove().length > 0){
+                $('.styles table').append(addRowMarkup).find('.style-rule:last').find('.style-value input').on('change', onStyleChange);   
+            }
+        }
         
         function changeStyle(style, value){
+            $('.style-change-stack textarea').append(camelToDash(style)+': '+value+';\n');
             PUBNUB_demo.publish({
                 channel: 'demo_tutorial',
                 message: {
                     command: 'Box_UpdateStyle',
-                    bb_id: 'bb-element-10',
+                    bb_id: currentElementID,
                     style: style,
                     value: value
                 }
             });
         }
         
+        $('.style-change-stack').on('click', function(e){
+            $(this).find('textarea').select();
+        });
         
         
+        function camelToDash(str) {
+          return str.replace(/\W+/g, '-')
+                    .replace(/([a-z\d])([A-Z])/g, '$1-$2')
+                    .toLowerCase();
+       }
         
         
     </script>

@@ -17,6 +17,12 @@
     z-index:10000000;
 }
 
+.styles{
+    list-style: none;
+    margin:0;
+    padding:0;
+}
+    
 .style-change-stack{
     position:fixed;
     top:0; right:0;
@@ -27,11 +33,49 @@
 .style-change-stack .title{
     display:block;
 }
-.style-change-stack textarea{
+.style-change-stack .textarea{
     padding:5px;
     border:solid 1px #000;
     width:250px;
     resize: none;
     color:#000;
     background:transparent;
+}
+
+.js-console{
+    position:absolute;
+    bottom:0;left:0;
+    width:100%;
+    min-height:200px;
+    max-height:300px;
+    background:rgba(0,0,0,1);  
+    color:white;
+}
+
+.js-console .log .bugbox{
+    color: #e88d3b;
+}
+
+.js-console .error{
+    color:#f00;
+}
+
+.js-console textarea{
+    display:block;
+    width:100%;
+    resize:none;   
+    background:transparent;  
+    color:white;
+    border:1px solid rgba(255,255,255,0.3);
+}
+
+
+iframe{
+    border:none;
+    padding:0;
+    margin:0;
+    overflow:hidden;
+    position:absolute;
+    top:0;
+    left:0;
 }

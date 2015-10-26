@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>BugBox Demo</title>
+    <meta name="description" content="A demo">
+    <meta name="author" content="Jon Wallace">
+    
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <script src="https://cdn.pubnub.com/pubnub-dev.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+</head>
+<body>
+    <iframe id="webpage" src="http://www.gametrailers.com" width="100%" height="100%"></iframe>
+    
+    <script type="text/javascript">
+        $(window).resize(function(){
+            $('#webpage').width(window.innerWidth)
+                .height(window.innerHeight);
+        });
+        
+        $('#webpage').load(function(){
+            var iframe = $('#webpage').contents();
+            
+            iframe.find('body').on('click', function(){
+                alert('bam');
+            });
+        });
+        
+        
+    </script>
+</body>
+</html>

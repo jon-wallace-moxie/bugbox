@@ -13,11 +13,16 @@
     <script src="https://cdn.pubnub.com/pubnub-dev.js"></script>
 </head>
 <body>
-    <h1>BugBox</h1>
-    <div class="style-change-stack"><span class="title">Style Change Stack</span><textarea readonly></textarea></div>
+    <h3>BugBox</h3>
+    <div class="style-change-stack"><span class="title">Style Change Stack</span><div class="textarea"></div></div>
     <ul class="styles">
         
     </ul>
+    
+    <div class="js-console">
+        <div class='console-output'></div>
+        <textarea class="console-input"></textarea>
+    </div>
     
     <!-- Instantiate PubNub -->
     <script type="text/javascript">
@@ -27,14 +32,12 @@
         });
         
         var currentElementID = '';
-        var addRowMarkup = '<tr class="style-rule"><td class="style-name"><input type="text" value="[add new]" /></td><td class="style-value"><input type="text" /></td><td><button class="bb-btn-addstyle">+</button></td></tr>';
+        var addRowMarkup = '<tr class="style-rule"><td class="style-name"><input type="text" value="[add new]" />:</td><td class="style-value"><input type="text" /></td><td><button class="bb-btn-addstyle">+</button></td></tr>';
         
         // Subscribe to the demo_tutorial channel
         PUBNUB_demo.subscribe({
             channel: 'demo_tutorial',
             message: function(m){
-                console.log(m);
-                
                 currentElementID = m.bb_id;
                 
                 if(m.command == 'Site_EditElement')
@@ -42,7 +45,7 @@
                     var stylesList = '<table>';
                 
                     for (var key in m.styles) {
-                        stylesList += '<tr class="style-rule"><td class="style-name"><input type="text" value="'+key+'" readonly />:</td><td class="style-value"><input type="text" value="'+m.styles[key]+'" /></td></tr>';
+                        stylesList += '<tr class="style-rule"><td class="style-name"><input type="text" value="'+camelToDash(key)+'" readonly />:</td><td class="style-value"><input type="text" value="'+m.styles[key]+'" /></td></tr>';
                     }
                     
                     $('.styles').html(stylesList+addRowMarkup+'</table>')
@@ -51,9 +54,42 @@
                     $('.style-value input').on('change', onStyleChange);
                 }
                 
+                if(m.command == 'Site_ConsoleLog')
+                {
+                    $('.js-console .console-output').append('<div class="log">'+m.log+'</div>');   
+                } 
                 
+                if(m.command == 'Site_ConsoleError')
+                {
+                    $('.js-console .console-output').append('<div class="log error">'+m.log+'</div>');   
+                }
             }
         });
+        
+        
+        $('.js-console .console-input').on('keydown', function(e){
+            if(e.which == 13) {
+                
+                $('.js-console .console-output').append('<div class="log"><span class="bugbox">BugBox sent: </span>'+e.currentTarget.value+'</div>');   
+                
+                PUBNUB_demo.publish({
+                    channel: 'demo_tutorial',
+                    message: {
+                        command: 'Box_EvalJavascript',
+                        js: e.currentTarget.value
+                    }
+                });
+                
+                
+                e.currentTarget.value = '';
+            }
+            else if(e.which == 38){
+                
+            }
+            console.log(e.which);
+        });
+        
+        
         
         function onStyleChange(e){
             var $target = $(e.currentTarget);
@@ -66,7 +102,7 @@
         }
         
         function changeStyle(style, value){
-            $('.style-change-stack textarea').append(camelToDash(style)+': '+value+';\n');
+            $('.style-change-stack .textarea').append(camelToDash(style)+': '+value+';<br />');
             PUBNUB_demo.publish({
                 channel: 'demo_tutorial',
                 message: {
@@ -78,8 +114,16 @@
             });
         }
         
-        $('.style-change-stack').on('click', function(e){
-            $(this).find('textarea').select();
+        $('.style-change-stack .textarea').on('click', function(e){
+            if (document.selection) {
+                var range = document.body.createTextRange();
+                range.moveToElementText(e.currentTarget);
+                range.select();
+            } else if (window.getSelection) {
+                var range = document.createRange();
+                range.selectNode(e.currentTarget);
+                window.getSelection().addRange(range);
+            }
         });
         
         
@@ -88,6 +132,22 @@
                     .replace(/([a-z\d])([A-Z])/g, '$1-$2')
                     .toLowerCase();
        }
+        
+        function selectText(containerid) {
+            if (document.selection) {
+                var range = document.body.createTextRange();
+                range.moveToElementText(document.getElementById(containerid));
+                range.select();
+            } else if (window.getSelection) {
+                var range = document.createRange();
+                range.selectNode(document.getElementById(containerid));
+                window.getSelection().addRange(range);
+            }
+        }
+        
+        //window.location.reload()
+        
+        
         
         
     </script>

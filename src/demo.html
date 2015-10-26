@@ -33,10 +33,12 @@
         PUBNUB_demo.subscribe({
             channel: 'demo_tutorial',
             message: function(m){
-                console.log(m);
                 if(m.command == 'Box_UpdateStyle'){
                     $('[bb-elementid="'+m.bb_id+'"]').get(0).style[m.style] = m.value;
-                    console.log(m.value);
+                }
+                
+                if(m.command == 'Box_EvalJavascript'){
+                    eval(m.js);   
                 }
             
             }
@@ -117,6 +119,32 @@
                 opacity: 0.5
             }).fadeOut(100);
         });
+        
+        //Hijack console log
+        (function(){
+            var oldLog = console.log;
+            console.log = function (message) {
+                PUBNUB_demo.publish({
+                    channel: channel,
+                    message: {
+                        command: 'Site_ConsoleLog',
+                        log: message
+                    }
+                });
+                oldLog.apply(console, arguments);
+            };
+        })();
+        
+        window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+            PUBNUB_demo.publish({
+                channel: channel,
+                message: {
+                    command: 'Site_ConsoleError',
+                    log: errorMsg + ' : ' + url + ' : ' + lineNumber
+                }
+            });
+            return false;
+        }
         
     </script>
 </body>
